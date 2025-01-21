@@ -1,8 +1,28 @@
-# React + Vite
+# Cyber App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the frontend part of the application built using **React.js**. It includes user interfaces for managing users, events, and other resources.
 
-Currently, two official plugins are available:
+## Installation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/ihumza/cyber-app
+   cd cyber-app
+   ```
+
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+
+Run the app
+
+```bash
+npm run dev
+```
+
+The backend should now be running on http://localhost:5173.
+
