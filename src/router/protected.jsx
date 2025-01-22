@@ -6,8 +6,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app/layout/AppSidebar';
 
 const Protected = () => {
-  // const token = useSelector((state) => state.token.data);
-  const token = true;
+  const token = useSelector((state) => state.auth.token);
 
   return token ? (
     <>
@@ -17,7 +16,7 @@ const Protected = () => {
           <Header>
             <SidebarTrigger />
           </Header>
-          <div className='p-6 bg-gray-100 h-full'>
+          <div className="p-6 bg-gray-100 h-full">
             <Outlet />
           </div>
         </main>
