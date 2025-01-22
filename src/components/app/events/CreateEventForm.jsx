@@ -4,19 +4,70 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import DataService from '@/utils/axios';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
+import countries from '@/utils/countries.json';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { useNavigate } from 'react-router';
 
 const CreateEventForm = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState('');
-  const [location, setLocation] = useState('');
+  const navigate = useNavigate();
+  const [data, setData] = useState({
+    title: '',
+    description: '',
+    type: 'public',
+    date: new Date().toISOString(),
+  });
+
+  const handleInputChange = (e) => {
+    console.log(e);
+    const { name, value } = e.target;
+    setData({ ...data, [name]: value });
+  };
+
+  const handleDateChange = (e) => {
+    console.log(e.target);
+    const { name, value } = e.target;
+    // Update only the respective field
+    if (name === 'date') {
+      setData((prev) => {
+        const [prevDate, prevTime] = prev?.date?.split('T');
+        return { ...data, date: `${value}T${prevTime || '00:00'}` };
+      });
+    } else if (name === 'time') {
+      setData((prev) => {
+        const [prevDate, prevTime] = prev?.date?.split('T');
+        return {
+          ...data,
+          date: `${
+            prevDate || new Date().toISOString().split('T')[0]
+          }T${value}`,
+        };
+      });
+    }
+  };
+
+  const handleSelectChange = (name, value) => {
+    setData({ ...data, [name]: value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const newEvent = { title, description, date, location };
-      await DataService.post('/events', newEvent);
+      const response = await DataService.post('/events/add', data);
+      if (response.data.status) {
+        toast(response?.data?.message ?? 'Event Created');
+        navigate('/events');
+      } else {
+        toast(response?.data?.message ?? 'Something went wrong!');
+      }
     } catch (error) {
+      toast(error?.response?.data?.message ?? error.message);
       console.error('Error creating event:', error);
     }
   };
@@ -32,40 +83,60 @@ const CreateEventForm = () => {
           <Label className="block text-sm font-medium">Event Title</Label>
           <Input
             type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="input"
+            name="title"
+            onChange={handleInputChange}
             required
           />
         </div>
         <div>
           <Label className="block text-sm font-medium">Description</Label>
           <Textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="input"
+            name="description"
+            onChange={handleInputChange}
             required
           />
         </div>
         <div>
           <Label className="block text-sm font-medium">Date</Label>
-          <Input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="input"
-            required
-          />
+          <div className="flex gap-2">
+            <Input
+              type="date"
+              name="date"
+              onChange={handleDateChange}
+              required
+            />
+            <Input
+              type="time"
+              name="time"
+              onChange={handleDateChange}
+              required
+            />
+          </div>
+        </div>
+        <div>
+          <Label className="block text-sm font-medium">Type</Label>
+          <Select onValueChange={(e) => handleSelectChange('type', e)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={'public'}>Public</SelectItem>
+              <SelectItem value={'private'}>Private</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <Label className="block text-sm font-medium">Location</Label>
-          <Input
-            type="text"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            className="input"
-            required
-          />
+          <Select onValueChange={(e) => handleSelectChange('location', e)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Location" />
+            </SelectTrigger>
+            <SelectContent>
+              {countries.map((country) => (
+                <SelectItem value={country.value}>{country.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <Button
           type="submit"

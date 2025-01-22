@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import DataService from '@/utils/axios';
 import { useNavigate } from 'react-router-dom';
+import Titlebar from '@/components/app/Titlebar';
 
 const CreateUser = () => {
   const [userData, setUserData] = useState({
@@ -30,10 +31,12 @@ const CreateUser = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6 px-8">
-      <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
-        Create User
-      </h2>
+    <div>
+      <Titlebar
+        title="Create User"
+        description=""
+        backButton
+      />
       <form
         onSubmit={handleSubmit}
         className="space-y-6"
@@ -76,7 +79,7 @@ const CreateUser = () => {
         </div>
         <Button
           type="submit"
-          className="w-full bg-blue-500 text-white"
+          className="w-full"
         >
           Create User
         </Button>

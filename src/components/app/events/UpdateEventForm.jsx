@@ -1,18 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import DataService from '@/utils/axios';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import DataService from "@/utils/axios";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import countries from "@/utils/countries.json";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 const EditEventForm = () => {
-  const [event, setEvent] = useState({});
+  const [data, setData] = useState({});
   const { id } = useParams();
+
+  const handleInputChange = (e) => {
+    console.log(e);
+    const { name, value } = e.target;
+    setData({ ...data, [name]: value });
+  };
+  const handleSelectChange = (name, value) => {
+    setData({ ...data, [name]: value });
+  };
 
   useEffect(() => {
     const fetchEvent = async () => {
       try {
         const response = await DataService.get(`/events/${id}`);
-        setEvent(response.data);
+        setData(response.data.data);
       } catch (error) {
-        console.error('Error fetching event:', error);
+        console.error("Error fetching data:", error);
       }
     };
     fetchEvent();
@@ -21,66 +42,87 @@ const EditEventForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await DataService.put(`/events/${id}`, event);
+      await DataService.put(`/events/${id}`, data);
     } catch (error) {
-      console.error('Error updating event:', error);
+      console.error("Error updating data:", error);
     }
   };
 
   return (
     <div className="container mx-auto">
       <h2 className="text-xl font-bold">Edit Event</h2>
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4"
-      >
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium">Event Title</label>
-          <input
+          <Label className="block text-sm font-medium">Event Title</Label>
+          <Input
             type="text"
-            value={event.title || ''}
-            onChange={(e) => setEvent({ ...event, title: e.target.value })}
+            name="title"
+            value={data?.title ?? ""}
+            onChange={handleInputChange}
             className="input"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Description</label>
-          <textarea
-            value={event.description || ''}
-            onChange={(e) =>
-              setEvent({ ...event, description: e.target.value })
-            }
+          <Label className="block text-sm font-medium">Description</Label>
+          <Textarea
+            name="description"
+            value={data.description || ""}
+            onChange={handleInputChange}
             className="input"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Date</label>
-          <input
+          <Label className="block text-sm font-medium">Date</Label>
+          <Input
             type="date"
-            value={event.date || ''}
-            onChange={(e) => setEvent({ ...event, date: e.target.value })}
+            name="date"
+            value={data.date || ""}
+            onChange={handleInputChange}
             className="input"
             required
           />
         </div>
         <div>
-          <label className="block text-sm font-medium">Location</label>
-          <input
-            type="text"
-            value={event.location || ''}
-            onChange={(e) => setEvent({ ...event, location: e.target.value })}
-            className="input"
-            required
-          />
+          <Label className="block text-sm font-medium">Type</Label>
+          <Select
+            defaultValue={data.type}
+            onValueChange={(e) => handleSelectChange("type", e)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={"public"}>Public</SelectItem>
+              <SelectItem value={"private"}>Private</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <button
-          type="submit"
-          className="bg-blue-500 text-white py-2 px-4 rounded"
-        >
-          Update Event
-        </button>
+        <div>
+          <Label className="block text-sm font-medium">Location</Label>
+          <Select onValueChange={(e) => handleSelectChange("location", e)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Location" />
+            </SelectTrigger>
+            <SelectContent>
+              {countries.map((country) => (
+                <SelectItem key={country.value} value={country.value}>
+                  {country.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="mt-2 text-sm text-gray-600">
+            Selected:{" "}
+            {countries.find((item) => item.value == data?.location)?.label}
+          </p>
+        </div>
+        <div className="flex justify-end">
+          <Button type="submit" className="py-2 px-4 rounded">
+            Update Event
+          </Button>
+        </div>
       </form>
     </div>
   );

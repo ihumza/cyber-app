@@ -3,9 +3,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import DataService from '@/utils/axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import Titlebar from '@/components/app/Titlebar';
 
 const UpdateUser = () => {
-  const { slug } = useParams();
+  const { username } = useParams();
   const [userData, setUserData] = useState({
     name: '',
     email: '',
@@ -16,7 +17,7 @@ const UpdateUser = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await DataService.get(`users/${slug}`);
+        const response = await DataService.get(`users/${username}`);
         if (response.data.status) {
           setUserData(response.data.data);
         }
@@ -25,7 +26,7 @@ const UpdateUser = () => {
       }
     };
     fetchUserData();
-  }, [slug]);
+  }, [username]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -35,7 +36,7 @@ const UpdateUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await DataService.put(`users/${slug}`, userData);
+      const response = await DataService.put(`users/${username}`, userData);
       if (response.data.status) {
         navigate('/users'); // Redirect to user list after successful update
       }
@@ -45,10 +46,12 @@ const UpdateUser = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-6 px-8">
-      <h2 className="text-3xl font-semibold text-center text-gray-800 mb-6">
-        Update User
-      </h2>
+    <div>
+      <Titlebar
+        backButton
+        title="Update User"
+        description="Update user's details."
+      />
       <form
         onSubmit={handleSubmit}
         className="space-y-6"
